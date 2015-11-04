@@ -200,6 +200,8 @@
         "removeRecordConfirmation": "Are you sure you want to remove the record?",
         "unlinkRecordConfirmation": "Are you sure you want to unlink the related record?",
         "removeSelectedRecordsConfirmation": "Are you sure you want to remove selected records?",
+        "linkSelectedRecordsConfirmation": "Are you sure you want to link the record(s)?",
+        "unlinkSelectedRecordsConfirmation": "Are you sure you want to unlink the record(s)?",
         "massUpdateResult": "{count} records have been updated",
         "massUpdateResultSingle": "{count} record has been updated",
         "noRecordsUpdated": "No records were updated",
@@ -224,6 +226,8 @@
         "remove": "Remove",
         "merge": "Merge",
         "massUpdate": "Mass Update",
+        "massLink": "Link to Target List",
+        "massUnLink": "Unlink from Target List",
         "export": "Export"
     },
     "fields": {

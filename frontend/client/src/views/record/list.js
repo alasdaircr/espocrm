@@ -224,6 +224,10 @@ Espo.define('views/record/list', 'view', function (Dep) {
 
         massUpdateAction: true,
 
+        massLinkAction: false,
+
+        massUnLinkAction: false,
+
         exportAction: true,
 
         quickDetailDisabled: false,
@@ -495,6 +499,98 @@ Espo.define('views/record/list', 'view', function (Dep) {
                     }.bind(this));
                     this.collection.fetch();
                 }, this);
+            }.bind(this));
+        },
+
+        massActionMassLink: function () {
+            if (!this.getAcl().check(this.scope, 'edit')) {
+                this.notify('Access denied', 'error');
+                return false;
+            }
+
+            this.notify('Loading...');
+            var data = {
+              ids: false,
+              massRelate: false
+            };
+
+            var allResultIsChecked = this.allResultIsChecked;
+            if (!allResultIsChecked) {
+                data.ids = this.checkedList;
+            } else {
+              data.massRelate = true;
+              data.where = this.collection.getWhere();
+            }
+
+            this.createView('dialog', 'Modals.SelectRecords', {
+              scope: 'TargetList',
+              multiple: false,
+              createButton: true,
+              filters: null
+            }, function (dialog) {
+              dialog.render();
+              this.notify(false);
+              dialog.once('select', function (selectObj) {
+                if (confirm(this.translate('linkSelectedRecordsConfirmation', 'messages'))) {
+                  $.ajax({
+                    url: 'TargetList' + '/' + selectObj.id + '/' + this.scope.toLowerCase() + 's',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    success: function () {
+                      Espo.Ui.success('Added to list(s)');
+                    },
+                    error: function () {
+                      Espo.Ui.warning('Unknown error occurred');
+                    },
+                  });
+                }
+              }.bind(this));
+            }.bind(this));
+        },
+
+        massActionMassUnLink: function () {
+            if (!this.getAcl().check(this.scope, 'edit')) {
+                this.notify('Access denied', 'error');
+                return false;
+            }
+
+            this.notify('Loading...');
+            var data = {
+              ids: false,
+              massRelate: false
+            };
+
+            var allResultIsChecked = this.allResultIsChecked;
+            if (!allResultIsChecked) {
+                data.ids = this.checkedList;
+            } else {
+              data.massRelate = true;
+              data.where = this.collection.getWhere();
+            }
+
+            this.createView('dialog', 'Modals.SelectRecords', {
+              scope: 'TargetList',
+              multiple: false,
+              createButton: true,
+              filters: null
+            }, function (dialog) {
+              dialog.render();
+              this.notify(false);
+              dialog.once('select', function (selectObj) {
+                if (confirm(this.translate('unlinkSelectedRecordsConfirmation', 'messages'))) {
+                  $.ajax({
+                    url: 'TargetList' + '/' + selectObj.id + '/' + this.scope.toLowerCase() + 's',
+                    type: 'DELETE',
+                    data: JSON.stringify(data),
+                    success: function () {
+                      Espo.Ui.success('Removed from list(s)');
+                    },
+                    error: function () {
+                      Espo.Ui.warning('Unknown error occurred');
+                    },
+                  });
+                }
+              }.bind(this));
             }.bind(this));
         },
 

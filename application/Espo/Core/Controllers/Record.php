@@ -358,24 +358,32 @@ class Record extends Base
             throw new BadRequest();
         }
 
-        $foreignIds = array();
-        if (isset($data['id'])) {
-            $foreignIds[] = $data['id'];
-        }
-        if (isset($data['ids']) && is_array($data['ids'])) {
-            foreach ($data['ids'] as $foreignId) {
-                $foreignIds[] = $foreignId;
+        if (!empty($data['massRelate'])) {
+            if (!is_array($data['where'])) {
+                throw new BadRequest();
             }
-        }
+            $where = json_decode(json_encode($data['where']), true);
+            return $this->getRecordService()->unlinkEntityMass($id, $link, $where);
+        } else {
+          $foreignIds = array();
+          if (isset($data['id'])) {
+              $foreignIds[] = $data['id'];
+          }
+          if (isset($data['ids']) && is_array($data['ids'])) {
+              foreach ($data['ids'] as $foreignId) {
+                  $foreignIds[] = $foreignId;
+              }
+          }
 
-        $result = false;
-        foreach ($foreignIds as $foreignId) {
-            if ($this->getRecordService()->unlinkEntity($id, $link, $foreignId)) {
-                $result = $result || true;
-            }
-        }
-        if ($result) {
-            return true;
+          $result = false;
+          foreach ($foreignIds as $foreignId) {
+              if ($this->getRecordService()->unlinkEntity($id, $link, $foreignId)) {
+                  $result = $result || true;
+              }
+          }
+          if ($result) {
+              return true;
+          }
         }
 
         throw new Error();

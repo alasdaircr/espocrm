@@ -4,7 +4,8 @@
       "detail":"Crm:Lead.Detail"
    },
    "recordViews":{
-      "detail":"Crm:Lead.Record.Detail"
+      "detail":"Crm:Lead.Record.Detail",
+      "list":"Crm:Contact.Record.List"
    },
    "formDependency": {
       "status": {

@@ -325,6 +325,14 @@ class RDB extends \Espo\ORM\Repository
         return $this->getMapper()->massRelate($entity, $relationName, $params);
     }
 
+    public function massUnRelate(Entity $entity, $relationName, array $params = array())
+    {
+        if (!$entity->id) {
+            return;
+        }
+        return $this->getMapper()->massUnRelate($entity, $relationName, $params);
+    }
+
     public function getAll()
     {
         $this->reset();

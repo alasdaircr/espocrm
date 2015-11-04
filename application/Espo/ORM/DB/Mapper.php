@@ -456,6 +456,62 @@ abstract class Mapper implements IMapper
         }
     }
 
+    public function massUnRelate(IEntity $entity, $relationName, array $params = array())
+    {
+        if (!$entity) {
+            return false;
+        }
+        $id = $entity->id;
+
+        if (empty($id) || empty($relationName)) {
+            return false;
+        }
+
+        $relOpt = $entity->relations[$relationName];
+
+        if (!isset($relOpt['entity']) || !isset($relOpt['type'])) {
+            throw new \LogicException("Not appropriate defenition for relationship {$relationName} in " . $entity->getEntityType() . " entity");
+        }
+
+        $relType = $relOpt['type'];
+
+        $className = (!empty($relOpt['class'])) ? $relOpt['class'] : $relOpt['entity'];
+        $relEntity = $this->entityFactory->create($className);
+        $foreignEntityType = $relEntity->getEntityType();
+
+        $keySet = $this->query->getKeys($entity, $relationName);
+
+        switch ($relType) {
+            case IEntity::MANY_MANY:
+
+                $params['select'] = array('id');
+                $subSql = $this->query->createSelectQuery($foreignEntityType, $params);
+                $ps = $this->pdo->query($subSql);
+
+                $ids = array();
+                if ($ps) {
+                    foreach ($ps as $row) {
+                      $ids[] = $this->pdo->quote($row['id']);
+                    }
+
+                    if (!count($ids))
+                      return true;
+
+                    $nearKey = $this->toDb($keySet['nearKey']);
+                    $distantKey = $this->toDb($keySet['distantKey']);
+                    $relTable = $this->toDb($relOpt['relationName']);
+                    $valuePart = $this->pdo->quote($entity->id);
+
+                    $sql = "DELETE FROM `$relTable` WHERE `$nearKey`=$valuePart AND `$distantKey` IN (".implode(",", $ids).")";
+                    if ($this->pdo->query($sql)) {
+                        return true;
+                    }
+                }
+
+                break;
+        }
+    }
+
     public function addRelation(IEntity $entity, $relationName, $id = null, $relEntity = null, $data = null)
     {
         if (!is_null($relEntity)) {
